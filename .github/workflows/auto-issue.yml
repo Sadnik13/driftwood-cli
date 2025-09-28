@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Create issue via GitHub CLI
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Actions автоматически выставит этот токен
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Actions автоматически выставит этот токщен
         run: |
           gh api repos/${{ github.repository }}/issues \
             -f title="Pulse $(date -u +'%F %T')" \
