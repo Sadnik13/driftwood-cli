@@ -1,0 +1,22 @@
+name: Auto Issue (every 5 min)
+
+on:
+  schedule:
+    # каждые 5 минут, начиная со 2-й, чтобы избежать пиков начала часа (UTC)
+    - cron: '2/5 * * * *'
+
+permissions:
+  issues: write   # даёт GITHUB_TOKEN право создавать issues
+
+jobs:
+  create:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create issue via GitHub CLI
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Actions автоматически выставит этот токен
+        run: |
+          gh api repos/${{ github.repository }}/issues \
+            -f title="Pulse $(date -u +'%F %T')" \
+            -f body="Automated issue from schedule (UTC time above)." \
+            -f labels="automation,pulse"
