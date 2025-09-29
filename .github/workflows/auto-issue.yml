@@ -13,11 +13,12 @@ jobs:
   create:
     runs-on: ubuntu-latest
     steps:
-      - name: Create issue via GitHub CLI
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Actions автоматически выставит этот токен
-        run: |
-          gh api repos/${{ github.repository }}/issues \
-            -f title="Pulse $(date -u +'%F %T')" \
-            -f body="Automated issue from schedule (UTC time above)." \
-            -f labels="automation,pulse"
+      - name: Create issue via API (labels as array)
+  env:
+    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  run: |
+    gh api repos/${{ github.repository }}/issues \
+      -f title="Pulse $(date -u +'%F %T')" \
+      -f body="Automated issue from schedule (UTC time above)." \
+      -f labels='["automation","pulse"]'
+
