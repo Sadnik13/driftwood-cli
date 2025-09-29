@@ -1,28 +1,44 @@
-name: Auto PR on push (all branches -> main)
+name: Open PRs for auto/* branches
 
 on:
-  push:
-    branches-ignore:
-      - "main"
+  workflow_dispatch:
+    inputs:
+      pattern:
+        description: 'Regex веток'
+        required: true
+        default: 'auto/.*'
 
 permissions:
   contents: write
   pull-requests: write
 
 jobs:
-  create-pr:
+  open-many-prs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Open or update PR
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          base: main
-          branch: ${{ github.ref_name }}   # head = ветка, куда был push
-          title: "Auto PR: ${{ github.ref_name }} -> main"
-          body: |
-            Automated PR from branch ${{ github.ref_name }}.
-          labels: |
-            automated-pr
-          draft: true
+      - name: List auto branches
+        id: list
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api repos/${{ github.repository }}/branches --paginate --jq '.[].name' > all.txt
+          awk -v re="${{ inputs.pattern }}" '$0 ~ re {print}' all.txt > match.txt
+          echo "count=$(wc -l < match.txt)" >> "$GITHUB_OUTPUT"
+          cat match.txt
+
+      - name: Create PRs (auto/* -> main)
+        if: steps.list.outputs.count != '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          while read -r BR; do
+            echo "Opening PR for $BR"
+            gh api repos/${{ github.repository }}/pulls \
+              --method POST \
+              -H "Accept: application/vnd.github+json" \
+              -f title="Auto PR: ${BR} -> main" \
+              -f head="${BR}" \
+              -f base="main" \
+              -f body="Automated PR for ${BR}" \
+            || echo "Skip: PR already exists for ${BR}"
+          done < match.txt
