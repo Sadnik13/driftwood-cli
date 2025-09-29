@@ -1,0 +1,29 @@
+name: Auto PR (develop -> main)
+
+on:
+  push:
+    branches:
+      - develop
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  pull-request:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Open PR to main
+        uses: diillson/auto-pull-request@v1.0.1
+        with:
+          destination_branch: "main"
+          # по умолчанию source = ветка, в которую был push
+          pr_title: "Auto PR: ${{ github.ref_name }} -> main"
+          pr_body: |
+            :crown: Автогенерируемый Pull Request
+            Source: ${{ github.ref_name }}
+            Actor: ${{ github.actor }}
+          pr_label: "auto-pr"
+          pr_draft: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
