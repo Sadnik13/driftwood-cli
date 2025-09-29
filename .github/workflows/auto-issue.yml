@@ -1,9 +1,10 @@
 name: Auto Issue (every 5 min)
 
 on:
+  workflow_dispatch: {}
   schedule:
-    # каждые 5 минут, начиная со 2-й, чтобы избежать пиков начала часа (UTC)
     - cron: '2/5 * * * *'
+
 
 permissions:
   issues: write   # даёт GITHUB_TOKEN право создавать issues
