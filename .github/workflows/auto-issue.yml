@@ -1,8 +1,9 @@
 name: Auto Issue (every 5 min)
 
 on:
+  workflow_dispatch: {}
   schedule:
-    - cron: '2/5 * * * *' # каждые 5 минут, начиная со 2-й минуты (UTC)
+    - cron: '2/5 * * * *'
 
 permissions:
   issues: write
@@ -19,9 +20,3 @@ jobs:
             -f title="Pulse $(date -u +'%F %T')" \
             -f body="Automated issue from schedule (UTC time above)." \
             -f labels='["automation","pulse"]'
-name: Auto Issue (every 5 min)
-
-on:
-  workflow_dispatch: {}
-  schedule:
-    - cron: '2/5 * * * *'
